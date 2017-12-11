@@ -5,12 +5,13 @@ from pyltp import Segmentor, Postagger, NamedEntityRecognizer, Parser
 import os
 
 class Config(object):
-  ltp_data_dir = "/home/prin/pyltp"
+  ltp_data_dir = "/var/www/BE/api/pyltp"
   seg_model = "cws.model"
   par_model = "parser.model"
   pos_model = "pos.model"
   ner_model = "ner.model"
-  
+  cus_model = "custom.dic"  
+
   c_segmentor = None
   c_parser = None
   c_postagger = None
@@ -22,8 +23,9 @@ class Config(object):
       return Config.c_segmentor
     else :
       seg_model_path = os.path.join(Config.ltp_data_dir , Config.seg_model)
+      cus_dict_path  = os.path.join(Config.ltp_data_dir , Config.cus_model)
       Config.c_segmentor = Segmentor()
-      Config.c_segmentor.load(seg_model_path)
+      Config.c_segmentor.load_with_lexicon(seg_model_path, cus_dict_path)
       return Config.c_segmentor
 
   @classmethod
