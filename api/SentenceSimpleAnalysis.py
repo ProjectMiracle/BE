@@ -3,9 +3,9 @@
 
 from snownlp import SnowNLP
 from pyltp import Segmentor
-import logging
 from api.Config import *
 from api.SentenceDeepAnalysis import *
+import logging
 
 
 class SentenceSimpleAnalysis(object):
@@ -13,11 +13,11 @@ class SentenceSimpleAnalysis(object):
     logger = logging.getLogger('django.request')
 
     chckWords = [u'查', u'查询', u'看', u'看看', u'多少', u'查查', u'告诉', u'知道', u'问', u'问问']
-    accnWords = [u'账户', u'账号', u'账上', u'卡', u'余额', u'银行卡', u'存折']
-    frwdWords = [u'转', u'转账', u'转钱', u'付', u'给', u'付给', u'打']
+    accnWords = [u'账户', u'账号', u'卡', u'余额', u'银行卡', u'存折']
+    frwdWords = [u'转', u'转钱', u'付', u'给', u'付给', u'打', u'转账给', u'转给', u'打给']
 
-    exchWords = [u'交易记录', u'交易', u'消费记录', u'消费', u'收入记录', u'收入', \
-                 u'转账', u'转账记录', u'交易历史', u'交易历史记录', u'支出历史', \
+    exchWords = [u'交易记录', u'交易', u'记录', u'消费记录', u'消费', u'收入记录', u'收入', \
+                 u'转账记录', u'交易历史', u'交易历史记录', u'支出历史', \
                  u'支出历史记录', u'收入历史', u'收入历史记录', u'转账历史', u'转账历史记录', \
                  u'花哪里', u'花掉']
 
@@ -85,7 +85,6 @@ class SentenceSimpleAnalysis(object):
         # can be replaced by pyltp
         wordlist = self.segmentor.segment(sentence)
         result = list(wordlist)
-        self.logger.debug(result)
         return result
 
     def cutSentence(self, text):
@@ -132,15 +131,14 @@ class SentenceSimpleAnalysis(object):
 
     def getEffectSentence(self, sentences):
         for sentence in sentences:
+            self.logger.debug(sentence)
             commands = self.delNonUsedWords(sentence)
             wordlist = self.cutWords(commands)
             if self.isExchWords(wordlist):
                 self.exchSentences.append(wordlist)
             elif self.isChckWords(wordlist):
                 tempstr = "".join(wordlist)
-                self.logger.debug(tempstr)
                 tempstr = self.__delCheckWords(tempstr)
-                self.logger.debug(tempstr)
                 wordlist = self.cutWords(tempstr)
                 self.chckSentences.append(wordlist)
             elif self.isFrwdWords(wordlist):
@@ -149,12 +147,10 @@ class SentenceSimpleAnalysis(object):
                 continue
 
     def processSentence(self, rawsentence):
-        self.logger.debug("Begin Simple Process.")
         sentences = self.cutSentence(rawsentence)
         self.logger.debug("sentences is " + str(sentences))
 
         if (len(sentences) == 1):
-            self.logger.debug("Begin to compare common sentence")
             comm_result = self.commClass(sentences[0])
             if comm_result:
                 return comm_result
@@ -209,19 +205,19 @@ if __name__ == '__main__':
     print (ssa.processSentence(u"请问我的卡里的余额是多少"))
     print (ssa.processSentence(u"请问我的银行卡里的余额是多少"))
     print (ssa.processSentence(u"请问我的存折里还有多少钱"))
-    """
-    """
+    
+    
     print (ssa.processSentence(u"查询余额"))
     print (ssa.processSentence(u"查最近三笔转账记录"))
-    """
-    """
+    
+    
     print (ssa.processSentence(u"我想查一下我的账户最近5次的交易记录"))
     print (ssa.processSentence(u"我想查一下最近的转账记录"))
     print (ssa.processSentence(u"查最近三笔转账记录"))
-    """
-    # print (ssa.processSentence(u"我想查最近三个月我的钱都花哪了"))
-
-    """
+    
+    #print (ssa.processSentence(u"我想查最近三个月我的钱都花哪了"))
+  
+    
     print (ssa.processSentence(u"我想付100元给陈大文"))
     print (ssa.processSentence(u"我想给陈大文100元"))
     print (ssa.processSentence(u"我想把100元给陈大文"))
@@ -229,5 +225,21 @@ if __name__ == '__main__':
     print (ssa.processSentence(u"请帮忙给陈大文100元"))
     print (ssa.processSentence(u"我想转100元给陈大文"))
     print (ssa.processSentence(u"我想把100元转账给陈大文"))
+  
     print (ssa.processSentence(u"查询我最近三笔转账记录"))
+    print (ssa.processSentence(u"请问我的账户余额是多少"))
+    print (ssa.processSentence(u"转账给小明3000块"))
+    print (ssa.processSentence(u"转账给小明三千块"))
+    """
+    """
+    print (ssa.processSentence(u"我的账号有多少钱"))
+    print (ssa.processSentence(u"我的账号还有多少钱"))
+    print (ssa.processSentence(u"账号余额"))
+    print (ssa.processSentence(u"我的账号还剩多少"))
+    print (ssa.processSentence(u"我想查一下我的银行卡的最近5次的交易历史记录"))
+    """
+    """
+    print (ssa.processSentence(u"转100元给小明"))
+    print (ssa.processSentence(u"转小明100元"))
+    print (ssa.processSentence(u"转账小明100元"))
     """
